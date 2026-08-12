@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  discordId String   @unique
+  username  String
+  createdAt DateTime @default(now())
+  
+  serverMembers ServerMember[]
+  transactions  Transaction[]
+}
+
+model Server {
+  id             String   @id @default(uuid())
+  discordGuildId String   @unique
+  settings       Json?
+  
+  serverMembers  ServerMember[]
+  transactions   Transaction[]
+}
+
+model ServerMember {
+  id       String @id @default(uuid())
+  serverId String
+  userId   String
+  role     String @default("USER")
+  
+  server   Server @relation(fields: [serverId], references: [id])
+  user     User   @relation(fields: [userId], references: [id])
+  wallet   Wallet?
+
+  @@unique([serverId, userId])
+}
+
+model Wallet {
+  id             String @id @default(uuid())
+  serverMemberId String @unique
+  balance        Int    @default(0)
+  lastDaily      DateTime?
+
+  serverMember   ServerMember @relation(fields: [serverMemberId], references: [id])
+}
+
+model Transaction {
+  id            String   @id @default(uuid())
+  userId        String
+  serverId      String
+  type          String
+  amount        Int
+  balanceBefore Int
+  balanceAfter  Int
+  game          String?
+  createdAt     DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  server Server @relation(fields: [serverId], references: [id])
+}
