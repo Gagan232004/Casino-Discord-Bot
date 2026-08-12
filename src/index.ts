@@ -7,6 +7,11 @@ import { ClosestGame } from './games/closest.game.js';
 import { CrashGame } from './games/crash.game.js';
 import { RouletteGame } from './games/roulette.game.js';
 import { ImposterGame } from './games/imposter.game.js';
+import { CoinFlipGame } from './games/coinflip.game.js';
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
 
 // Ensure the token exists
 const token = process.env.DISCORD_TOKEN;
@@ -225,8 +230,10 @@ async function processCommand(command: string, args: string[], message: any) {
       .setDescription(`
 **User Commands:**
 \`+debut\` - Register your account and get 1000 starting <:Gemini_Generated_Image_nele8wnel:1536424832177143898>!
+\`+welcome\` - Claim your one-time 5000 coins bonus!
 \`+balance\` - Check your wallet balance.
 \`+daily\` - Claim your daily free <:Gemini_Generated_Image_nele8wnel:1536424832177143898>.
+\`+give @user <amount>\` - Give coins to another player.
 
 **Single Player Games:**
 \`+cf <amount> <heads/tails>\` - Bet on a coin flip (2x payout).
@@ -240,6 +247,8 @@ async function processCommand(command: string, args: string[], message: any) {
 \`+roulette\` - Open a public Roulette table.
 \`+j\` - Join the active lobby in this channel.
 \`+l\` - Leave the lobby.
+\`+lobby\` - View the players currently inside the lobby.
+\`+end\` - Cancel the lobby (Host only).
 \`+s\` - Start the game (Host only).
       `);
     return await message.reply({ embeds: [guideEmbed] });
@@ -443,15 +452,19 @@ async function processCommand(command: string, args: string[], message: any) {
     }
   } else if (command === 'j' || command === 'join') {
     try {
+      const lobbyTemp = LobbyService.getLobby(message.channel.id);
+      if (lobbyTemp) {
+        const balance = await EconomyService.getBalance(message.guild.id, message.author.id);
+        if (balance < lobbyTemp.betAmount) {
+          return await message.reply(`❌ You have insufficient balance to join! It requires **${lobbyTemp.betAmount}**, but you only have **${balance}**.`);
+        }
+      }
+
       const lobby = LobbyService.joinLobby(message.channel.id, message.author.id);
       
-      const joinEmbed = new EmbedBuilder()
-        .setColor('#00FF00')
-        .setDescription(`<@${message.author.id}> joined the lobby! (${lobby.players.length}/8 Players)`);
-      
-      await message.reply({ embeds: [joinEmbed] });
+      await message.reply(`✅ <@${message.author.id}> joined the lobby! (${lobby.players.length}/8 Players)`);
     } catch (err: any) {
-      await message.reply(err.message);
+      await message.reply(`❌ ${err.message}`);
     }
   } else if (command === 'l') {
     try {
@@ -460,14 +473,29 @@ async function processCommand(command: string, args: string[], message: any) {
       if (result.destroyed) {
         await message.reply(`🚪 <@${message.author.id}> left the lobby. Since they were the host (or the lobby is empty), the lobby has been **cancelled**.`);
       } else {
-        const leaveEmbed = new EmbedBuilder()
-          .setColor('#FF0000')
-          .setDescription(`<@${message.author.id}> left the lobby. (${result.lobby.players.length}/8 Players)`);
-        await message.reply({ embeds: [leaveEmbed] });
+        await message.reply(`🚪 <@${message.author.id}> left the lobby. (${result.lobby.players.length}/8 Players)`);
       }
     } catch (err: any) {
-      await message.reply(err.message);
+      await message.reply(`❌ ${err.message}`);
     }
+  } else if (command === 'lobby') {
+    const lobby = LobbyService.getLobby(message.channel.id);
+    if (!lobby) return await message.reply('There is no active lobby in this channel.');
+    
+    const playerList = lobby.players.map(p => `<@${p}>`).join('\n');
+    const lobbyEmbed = new EmbedBuilder()
+      .setColor('#00FFFF')
+      .setTitle('👥 Current Lobby')
+      .setDescription(`**Host:** <@${lobby.hostId}>\n**Game:** ${lobby.gameType}\n**Buy-in:** ${lobby.betAmount} <:Gemini_Generated_Image_nele8wnel:1536424832177143898>\n\n**Players in Lobby (${lobby.players.length}/8):**\n${playerList}`);
+      
+    await message.reply({ embeds: [lobbyEmbed] });
+  } else if (command === 'end') {
+    const lobby = LobbyService.getLobby(message.channel.id);
+    if (!lobby) return await message.reply('There is no active lobby to end!');
+    if (lobby.hostId !== message.author.id) return await message.reply('Only the host can end the lobby!');
+    
+    LobbyService.clearLobby(message.channel.id);
+    await message.reply('🛑 **The host has manually ended and cancelled the lobby!**');
   } else if (command === 's' || command === 'start') {
     const lobby = LobbyService.getLobby(message.channel.id);
     if (!lobby) return (await message.reply('There is no lobby to start!'));
@@ -495,11 +523,11 @@ async function processCommand(command: string, args: string[], message: any) {
   } else if (command === 'ping') {
     await message.reply('Pong! 🏓 The Casino engine is running via Prefix Command!');
   } else if (command === 'balance') {
-    const data = await EconomyService.getWallet(message.guild.id, message.author.id);
+    const balance = await EconomyService.getBalance(message.guild.id, message.author.id);
     
     const embed = new EmbedBuilder()
       .setColor('#FFD700')
-      .setDescription(`**Balance**\n${data.wallet.balance} <:Gemini_Generated_Image_nele8wnel:1536424832177143898>`);
+      .setDescription(`**Balance**\n${balance} <:Gemini_Generated_Image_nele8wnel:1536424832177143898>`);
       
     await message.reply({ embeds: [embed] });
   } else if (command === 'daily') {
@@ -514,10 +542,77 @@ async function processCommand(command: string, args: string[], message: any) {
     } catch (err: any) {
       await message.reply(`❌ ${err.message}`);
     }
+  } else if (command === 'welcome') {
+    try {
+      const wallet = await EconomyService.claimWelcome(message.guild.id, message.author.id);
+      
+      const embed = new EmbedBuilder()
+        .setColor('#00FF00')
+        .setTitle('🎉 WELCOME TO CASINO ADDA! 🎉')
+        .setDescription(`Congratulations <@${message.author.id}>!\nYou have successfully claimed your one-time welcome bonus of **5000 <:Gemini_Generated_Image_nele8wnel:1536424832177143898>**!\nYour new balance is **${wallet.balance}**!`)
+        .setImage('https://media.tenor.com/b_xZ2J969oYAAAAC/welcome-neon.gif');
+        
+      await message.reply({ embeds: [embed] });
+    } catch (err: any) {
+      await message.reply(`❌ ${err.message}`);
+    }
+  } else if (command === 'give' || command === 'pay') {
+    if (args.length < 2) return await message.reply('❌ Usage: `+give @user <amount>`');
+    
+    const target = message.mentions.users.first();
+    if (!target) return await message.reply('❌ You must explicitly mention a user to give coins to.');
+    if (target.id === message.author.id) return await message.reply('❌ You cannot give coins to yourself.');
+    if (target.bot) return await message.reply('❌ You cannot give coins to bots.');
+
+    const amount = parseInt(args[1]);
+    if (isNaN(amount) || amount < 10 || amount > 1000) {
+      return await message.reply('❌ The amount must be a valid number between **10** and **1000**.');
+    }
+
+    const senderBalance = await EconomyService.getBalance(message.guild.id, message.author.id);
+    if (senderBalance < amount) return await message.reply(`❌ You don't have enough balance! You need **${amount}**, but you only have **${senderBalance}**.`);
+
+    const receiverExists = await EconomyService.checkWalletExists(message.guild.id, target.id);
+    if (!receiverExists) return await message.reply('❌ That user has not registered yet. Tell them to type `+debut` first.');
+
+    try {
+      await EconomyService.adjustBalance(message.guild.id, message.author.id, -amount, 'Give', 'BET');
+      const newWallet = await EconomyService.adjustBalance(message.guild.id, target.id, amount, 'Give', 'WIN');
+      
+      const embed = new EmbedBuilder()
+        .setColor('#00FF00')
+        .setTitle('💸 Coins Transferred!')
+        .setDescription(`Successfully sent **${amount} <:Gemini_Generated_Image_nele8wnel:1536424832177143898>** to <@${target.id}>!`);
+      await message.reply({ embeds: [embed] });
+    } catch (e: any) {
+      await message.reply(`❌ ${e.message}`);
+    }
   } else if (command === 'roulette') {
     try {
       await message.reply('🎲 Setting up the Roulette Table...');
       RouletteGame.startTable(client, message.channel.id, message.guild.id).catch(console.error);
+    } catch (err: any) {
+      await message.reply(`❌ ${err.message}`);
+    }
+  } else if (command === 'cf') {
+    if (args.length < 2) {
+      return await message.reply('❌ Usage: `+cf <amount> <heads/tails>` (e.g. `+cf 100 heads`)');
+    }
+    const amount = parseInt(args[0]);
+    const choice = args[1].toUpperCase();
+
+    if (isNaN(amount) || amount <= 0) return await message.reply('❌ Invalid bet amount.');
+    if (choice !== 'HEADS' && choice !== 'TAILS') return await message.reply('❌ You must pick HEADS or TAILS.');
+
+    try {
+      const result = await CoinFlipGame.play(message.guild.id, message.author.id, amount, choice as 'HEADS' | 'TAILS');
+      
+      const embed = new EmbedBuilder()
+        .setColor(result.won ? '#00FF00' : '#FF0000')
+        .setTitle(`🪙 Coin Flip: ${result.result}`)
+        .setDescription(`You bet **${amount}** on **${choice}**.\n\n${result.won ? `🎉 **YOU WON!**` : `💥 **YOU LOST!**`}\n\nYour new balance is **${result.newBalance} <:Gemini_Generated_Image_nele8wnel:1536424832177143898>**`);
+        
+      await message.reply({ embeds: [embed] });
     } catch (err: any) {
       await message.reply(`❌ ${err.message}`);
     }

@@ -87,18 +87,13 @@ export class RouletteGame {
         return;
       }
 
-      const spinGif = new AttachmentBuilder(path.join(process.cwd(), 'src', 'assets', 'roulette.gif'), { name: 'spin.gif' });
-
       const spinningEmbed = new EmbedBuilder()
         .setColor('#FFA500')
         .setTitle('🎡 The Wheel is Spinning...')
         .setDescription('No more bets! Let\'s see where it lands...')
-        .setImage('attachment://spin.gif');
+        .setImage('https://media.tenor.com/XqT2JzY7P2sAAAAC/roulette-spin.gif');
       
-      const spinMsg = await channel.send({ 
-        embeds: [spinningEmbed],
-        files: [spinGif]
-      });
+      const spinMsg = await channel.send({ embeds: [spinningEmbed] });
 
       // Simulate a spin (4 seconds)
       setTimeout(async () => {
@@ -117,7 +112,7 @@ export class RouletteGame {
           .setTitle(`${emoji} The ball landed on ${resultColor.toUpperCase()} ${resultNumber}!`)
           .setDescription('Calculating payouts...');
         
-        await spinMsg.edit({ embeds: [resultEmbed], files: [] });
+        await spinMsg.edit({ embeds: [resultEmbed] });
 
         let summary = '**Payouts:**\n';
         let anyWinners = false;

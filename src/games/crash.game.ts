@@ -47,7 +47,8 @@ export class CrashGame {
     const embed = new EmbedBuilder()
       .setColor('#FFFF00')
       .setTitle('📈 Multiplier: 1.00x')
-      .setDescription('Click the button below to secure your multiplier before it crashes!');
+      .setDescription('Click the button below to secure your multiplier before it crashes!')
+      .setImage('https://media.tenor.com/3Z6K0sM3KxEAAAAC/rocket-launch.gif');
 
     const message = await channel.send({ embeds: [embed], components: [row] });
 
@@ -101,7 +102,8 @@ export class CrashGame {
         const crashEmbed = new EmbedBuilder()
           .setColor('#FF0000')
           .setTitle(`💥 CRASHED AT ${crashMultiplier.toFixed(2)}x!`)
-          .setDescription(`Anyone who didn't cash out just lost their bet of ${lobby.betAmount} <:Gemini_Generated_Image_nele8wnel:1536424832177143898>.`);
+          .setDescription(`Anyone who didn't cash out just lost their bet of ${lobby.betAmount} <:Gemini_Generated_Image_nele8wnel:1536424832177143898>.`)
+          .setImage('https://media.tenor.com/8a6w2R74uUIAAAAC/explosion-boom.gif');
 
         const disabledRow = new ActionRowBuilder<ButtonBuilder>()
           .addComponents(
@@ -131,7 +133,8 @@ export class CrashGame {
         const liveEmbed = new EmbedBuilder()
           .setColor('#00FF00')
           .setTitle(`📈 Multiplier: ${currentVisualMultiplier.toFixed(2)}x`)
-          .setDescription('Click the button below to secure your multiplier before it crashes!');
+          .setDescription('Click the button below to secure your multiplier before it crashes!')
+          .setImage('https://media.tenor.com/3Z6K0sM3KxEAAAAC/rocket-launch.gif');
         
         await message.edit({ embeds: [liveEmbed] }).catch(() => {});
       }

@@ -5,21 +5,31 @@ import { prisma } from '../database/prisma.js';
  * It is completely decoupled from Discord so it can be tested independently.
  */
 export class EconomyService {
-  /**
-   * Checks if a user has debuted (has a wallet in this server).
-   */
   static async checkWalletExists(discordGuildId: string, discordUserId: string): Promise<boolean> {
-    const server = await prisma.server.findUnique({ where: { discordGuildId } });
-    const user = await prisma.user.findUnique({ where: { discordId: discordUserId } });
-    if (!server || !user) return false;
-
-    const member = await prisma.serverMember.findUnique({
-      where: { serverId_userId: { serverId: server.id, userId: user.id } }
+    const wallet = await prisma.wallet.findFirst({
+      where: {
+        serverMember: {
+          user: { discordId: discordUserId },
+          server: { discordGuildId: discordGuildId }
+        }
+      }
     });
-    if (!member) return false;
-
-    const wallet = await prisma.wallet.findUnique({ where: { serverMemberId: member.id } });
     return !!wallet;
+  }
+
+  /**
+   * Fast query to get a user's balance without creating records.
+   */
+  static async getBalance(discordGuildId: string, discordUserId: string): Promise<number> {
+    const wallet = await prisma.wallet.findFirst({
+      where: {
+        serverMember: {
+          user: { discordId: discordUserId },
+          server: { discordGuildId: discordGuildId }
+        }
+      }
+    });
+    return wallet?.balance || 0;
   }
 
   /**
@@ -228,6 +238,46 @@ export class EconomyService {
           balanceBefore: wallet.balance,
           balanceAfter: updatedWallet.balance,
           game: 'DailyReward'
+        }
+      });
+
+      return updatedWallet;
+    });
+  }
+
+  static async claimWelcome(discordGuildId: string, discordUserId: string) {
+    return await prisma.$transaction(async (tx) => {
+      const user = await tx.user.findUnique({ where: { discordId: discordUserId } });
+      const server = await tx.server.findUnique({ where: { discordGuildId } });
+      if (!user || !server) throw new Error('You must use `+debut` first.');
+
+      const member = await tx.serverMember.findUnique({ where: { serverId_userId: { serverId: server.id, userId: user.id } }});
+      if (!member) throw new Error('You must use `+debut` first.');
+
+      const wallet = await tx.wallet.findUnique({ where: { serverMemberId: member.id } });
+      if (!wallet) throw new Error('Wallet missing. You must use `+debut` first.');
+
+      const existingWelcome = await tx.transaction.findFirst({
+        where: { userId: user.id, serverId: server.id, type: 'WELCOME' }
+      });
+      
+      if (existingWelcome) throw new Error('You have already claimed your one-time welcome bonus!');
+
+      const rewardAmount = 5000;
+      const updatedWallet = await tx.wallet.update({
+        where: { id: wallet.id },
+        data: { balance: wallet.balance + rewardAmount }
+      });
+
+      await tx.transaction.create({
+        data: {
+          userId: user.id,
+          serverId: server.id,
+          type: 'WELCOME',
+          amount: rewardAmount,
+          balanceBefore: wallet.balance,
+          balanceAfter: updatedWallet.balance,
+          game: 'WelcomeBonus'
         }
       });
 

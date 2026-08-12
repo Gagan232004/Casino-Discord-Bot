@@ -142,9 +142,12 @@ export class ImposterGame {
       }
     }
 
-    await channel.send({ 
-      content: '✅ Everyone has received their secret words in their DMs!\n\n**Let the games begin...**\nhttps://media.tenor.com/M6LqVvS4620AAAAC/among-us-shh.gif' 
-    });
+    const startEmbed = new EmbedBuilder()
+      .setColor('#000000')
+      .setDescription('✅ Everyone has received their secret words in their DMs!\n\n**Let the games begin...**')
+      .setImage('https://media.tenor.com/M6LqVvS4620AAAAC/among-us-shh.gif');
+      
+    await channel.send({ embeds: [startEmbed] });
 
     // Game Loop (Clue Rounds Only)
     for (let round = 1; round <= lobby.rounds; round++) {
@@ -184,8 +187,11 @@ export class ImposterGame {
     }
 
     // VOTING PHASE (Occurs once after all rounds are complete)
-    await channel.send('https://media.tenor.com/D4s3vR6hR-sAAAAC/among-us-emergency-meeting.gif');
-    const voteMsg = await this.runVoting(channel, alivePlayers, `🕵️ **FINAL EMERGENCY MEETING**\nAll rounds are complete! Select who you think the Imposter is! You have 30 seconds.`);
+    const emergencyEmbed = new EmbedBuilder()
+      .setColor('#FF0000')
+      .setImage('https://media.tenor.com/D4s3vR6hR-sAAAAC/among-us-emergency-meeting.gif');
+    await channel.send({ embeds: [emergencyEmbed] });
+    const voteMsg = await this.runVoting(client, channel, alivePlayers, `🕵️ **FINAL EMERGENCY MEETING**\nAll rounds are complete! Select who you think the Imposter is! You have 30 seconds.`);
     
     let trialId = voteMsg.highestVoted;
 
@@ -213,7 +219,7 @@ export class ImposterGame {
       }
 
       // FINAL VOTING PHASE
-      const finalVoteMsg = await this.runVoting(channel, alivePlayers, `💀 **FINAL VERDICT**\nDo we eliminate <@${trialId}> or someone else? Select a name to eliminate them. You have 30 seconds.`);
+      const finalVoteMsg = await this.runVoting(client, channel, alivePlayers, `💀 **FINAL VERDICT**\nDo we eliminate <@${trialId}> or someone else? Select a name to eliminate them. You have 30 seconds.`);
 
       trialId = finalVoteMsg.highestVoted;
     }
@@ -223,11 +229,13 @@ export class ImposterGame {
       const winEmbed = new EmbedBuilder()
         .setColor('#FF0000')
         .setTitle('🔪 THE IMPOSTER WINS! 🔪')
-        .setDescription(`🚨 The Innocents failed to eliminate anyone! <@${imposterId}> survived! They were the **IMPOSTER**!\nThe Imposter's word was: **${chosenPair.imp}**\nThe Innocents' word was: **${chosenPair.inno}**`);
+        .setDescription(`🚨 The Innocents failed to eliminate anyone! <@${imposterId}> survived! They were the **IMPOSTER**!\nThe Imposter's word was: **${chosenPair.imp}**\nThe Innocents' word was: **${chosenPair.inno}**`)
+        .setImage('https://media.tenor.com/zW-z_xU0iYAAAAAC/among-us-imposter.gif');
       
-      await channel.send({ content: 'https://media.tenor.com/zW-z_xU0iYAAAAAC/among-us-imposter.gif', embeds: [winEmbed] });
+      await channel.send({ embeds: [winEmbed] });
       const totalPot = lobby.betAmount * lobby.players.length;
       await EconomyService.adjustBalance(guildId, imposterId, totalPot, 'Imposter', 'WIN').catch(console.error);
+      await channel.send(`💰 The Imposter stole the entire pot of **${totalPot} <:Gemini_Generated_Image_nele8wnel:1536424832177143898>**!`);
       LobbyService.clearLobby(channelId);
       return;
     }
@@ -245,39 +253,52 @@ export class ImposterGame {
       await channel.send({ embeds: [winEmbed] });
 
       // Calculate payout
-      const splitAmount = Math.floor(lobby.betAmount / initialInnocents.length);
-      const payout = lobby.betAmount + splitAmount;
+      const potToShare = lobby.betAmount * lobby.players.length;
+      const payout = Math.floor(potToShare / initialInnocents.length);
 
       for (const inno of initialInnocents) {
         await EconomyService.adjustBalance(guildId, inno, payout, 'Imposter', 'WIN').catch(console.error);
       }
+      await channel.send(`💰 The Innocents successfully split the pot! Each innocent receives **${payout} <:Gemini_Generated_Image_nele8wnel:1536424832177143898>**!`);
       LobbyService.clearLobby(channelId);
       return;
     } else {
-      await channel.send({
-        content: `💀 <@${eliminatedId}> was ejected. They were **INNOCENT**.\nhttps://media.tenor.com/2cR3B8m7S4AAAAAC/among-us-ejected.gif`
-      });
+      const ejectEmbed = new EmbedBuilder()
+        .setColor('#8B0000')
+        .setDescription(`💀 <@${eliminatedId}> was ejected. They were **INNOCENT**.`)
+        .setImage('https://media.tenor.com/2cR3B8m7S4AAAAAC/among-us-ejected.gif');
+        
+      await channel.send({ embeds: [ejectEmbed] });
       
       const winEmbed = new EmbedBuilder()
         .setColor('#FF0000')
         .setTitle('🔪 THE IMPOSTER WINS! 🔪')
-        .setDescription(`🚨 The wrong person was ejected! <@${imposterId}> survived! They were the **IMPOSTER**!\nThe Imposter's word was: **${chosenPair.imp}**\nThe Innocents' word was: **${chosenPair.inno}**`);
+        .setDescription(`🚨 The wrong person was ejected! <@${imposterId}> survived! They were the **IMPOSTER**!\nThe Imposter's word was: **${chosenPair.imp}**\nThe Innocents' word was: **${chosenPair.inno}**`)
+        .setImage('https://media.tenor.com/zW-z_xU0iYAAAAAC/among-us-imposter.gif');
       
       await channel.send({ embeds: [winEmbed] });
 
       // Calculate payout
       const totalPot = lobby.betAmount * lobby.players.length;
       await EconomyService.adjustBalance(guildId, imposterId, totalPot, 'Imposter', 'WIN').catch(console.error);
+      await channel.send(`💰 The Imposter stole the entire pot of **${totalPot} <:Gemini_Generated_Image_nele8wnel:1536424832177143898>**!`);
       LobbyService.clearLobby(channelId);
       return;
     }
   }
 
-  static async runVoting(channel: TextChannel, alivePlayers: string[], promptText: string) {
-    const options = alivePlayers.map(p => ({
-      label: 'Player',
-      description: `Vote for this player`,
-      value: p
+  static async runVoting(client: Client, channel: TextChannel, alivePlayers: string[], promptText: string) {
+    const options = await Promise.all(alivePlayers.map(async p => {
+      let name = 'Unknown';
+      try {
+        const user = await client.users.fetch(p);
+        name = user.username.substring(0, 25); // Discord select menu labels must be <= 100 chars
+      } catch (e) {}
+      return {
+        label: name,
+        description: `Vote for ${name}`,
+        value: p
+      };
     }));
 
     // Hack because discord requires labels to be strings, but we only have IDs, we will mention them in chat, 
@@ -287,7 +308,7 @@ export class ImposterGame {
         new StringSelectMenuBuilder()
           .setCustomId('imposter_vote')
           .setPlaceholder('Select a player to vote for...')
-          .addOptions(options.map((opt, i) => ({ label: `Player ${i + 1}`, value: opt.value, description: `ID: ${opt.value}` })))
+          .addOptions(options.map((opt) => ({ label: opt.label, value: opt.value, description: `ID: ${opt.value}` })))
       );
 
     const voteEmbed = new EmbedBuilder()
