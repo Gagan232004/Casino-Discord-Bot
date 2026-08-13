@@ -7,6 +7,7 @@ import { ClosestGame } from './games/closest.game.js';
 import { CrashGame } from './games/crash.game.js';
 import { RouletteGame } from './games/roulette.game.js';
 import { ImposterGame } from './games/imposter.game.js';
+import { MafiaGame } from './games/mafia.game.js';
 import { CoinFlipGame } from './games/coinflip.game.js';
 
 process.on('unhandledRejection', (reason, promise) => {
@@ -47,7 +48,8 @@ client.once('ready', async () => {
         { name: 'High/Low Battle', value: 'hb' },
         { name: 'Crash', value: 'hcr' },
         { name: 'Roulette', value: 'roulette' },
-        { name: 'Imposter', value: 'hi' }
+        { name: 'Imposter', value: 'hi' },
+        { name: 'Mafia', value: 'mafia' }
       )),
     new SlashCommandBuilder().setName('roulette').setDescription('Open a public Roulette table'),
     new SlashCommandBuilder().setName('join').setDescription('Join the active lobby'),
@@ -57,6 +59,7 @@ client.once('ready', async () => {
     new SlashCommandBuilder().setName('host_crash').setDescription('Host a Crash match'),
     new SlashCommandBuilder().setName('host_imposter').setDescription('Host an Imposter match'),
     new SlashCommandBuilder().setName('host_battle').setDescription('Host a High/Low Battle match'),
+    new SlashCommandBuilder().setName('host_mafia').setDescription('Host a Mafia match'),
   ].map(command => command.toJSON());
 
   const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN!);
@@ -222,7 +225,21 @@ async function processCommand(command: string, args: string[], message: any) {
 8. **The Defense:** The highest voted player gets 30 seconds to defend themselves before the final elimination vote!
 9. If the Imposter is eliminated, the Innocents split their bet! If the Imposter survives, they take ALL the money!`);
       return await message.reply({ embeds: [hiEmbed] });
-    }
+    } else if (sub === 'mafia') {
+        const mafiaEmbed = new EmbedBuilder()
+          .setColor('#2C3E50')
+          .setTitle('🕵️ Guide: Mafia (+mafia)')
+          .setDescription(`
+**Objective:** Eliminate the Mafia before they eliminate the village!
+
+**How to Play:**
+1. Host starts a lobby with \`+mafia\`.
+2. Players join and are assigned secret roles (Mafia, Doctor, Detective, Villager).
+3. Night Phase: Mafia selects a victim; Doctor can save someone; Detective can investigate a player.
+4. Day Phase: Everyone discusses and votes on who to lynch.
+5. The game continues until either all Mafia are eliminated or the Mafia outnumbers the villagers!`);
+        return await message.reply({ embeds: [mafiaEmbed] });
+      }
 
     const guideEmbed = new EmbedBuilder()
       .setColor('#FF00FF')
@@ -244,6 +261,7 @@ async function processCommand(command: string, args: string[], message: any) {
 \`+hc\` - Host a "Closest to Bot" match.
 \`+hcr\` - Host a "Crash" match.
 \`+hi\` - Host an "Imposter" match.
+\`+mafia\` - Host a Voice Channel Mafia game!
 \`+roulette\` - Open a public Roulette table.
 \`+j\` - Join the active lobby in this channel.
 \`+l\` - Leave the lobby.
@@ -450,6 +468,48 @@ async function processCommand(command: string, args: string[], message: any) {
     } catch (err: any) {
       await message.reply(err.message);
     }
+  } else if (command === 'mafia') {
+    try {
+      const lobby = LobbyService.createLobby(message.channel.id, message.author.id, 'MAFIA');
+      
+      const setupEmbed = new EmbedBuilder()
+        .setColor('#8B0000')
+        .setTitle('🎙️ Setting up Voice Mafia')
+        .setDescription('**What is the Buy-in Bet amount per player?**\nType a number (e.g. `100`).');
+      
+      await message.reply({ embeds: [setupEmbed] });
+      const filter = (m: any) => m.author.id === message.author.id;
+      
+      const betCol = await message.channel.awaitMessages({ filter, max: 1, time: 30000, errors: ['time'] }).catch(() => null);
+      if (!betCol) { LobbyService.clearLobby(message.channel.id); return (await message.channel.send('Setup timed out. Lobby cancelled.')); }
+      const bet = parseInt(betCol.first()?.content || '0');
+      if (isNaN(bet) || bet <= 0) { LobbyService.clearLobby(message.channel.id); return (await message.channel.send('Invalid bet amount. Lobby cancelled.')); }
+      lobby.betAmount = bet;
+
+      setupEmbed.setDescription('**Include the Guardian role?**\nType `yes` or `no`.');
+      await message.channel.send({ embeds: [setupEmbed] });
+      const guardCol = await message.channel.awaitMessages({ filter, max: 1, time: 30000, errors: ['time'] }).catch(() => null);
+      if (!guardCol) { LobbyService.clearLobby(message.channel.id); return (await message.channel.send('Setup timed out.')); }
+      const hasGuardian = guardCol.first()?.content.toLowerCase() === 'yes';
+
+      setupEmbed.setDescription('**Include the Jester role?**\nType `yes` or `no`.');
+      await message.channel.send({ embeds: [setupEmbed] });
+      const jestCol = await message.channel.awaitMessages({ filter, max: 1, time: 30000, errors: ['time'] }).catch(() => null);
+      if (!jestCol) { LobbyService.clearLobby(message.channel.id); return (await message.channel.send('Setup timed out.')); }
+      const hasJester = jestCol.first()?.content.toLowerCase() === 'yes';
+
+      lobby.settings = { hasGuardian, hasJester };
+      lobby.state = 'WAITING';
+
+      const openEmbed = new EmbedBuilder()
+        .setColor('#800080')
+        .setTitle('🎙️ Voice Mafia Lobby OPEN!')
+        .setDescription(`**Host:** <@${lobby.hostId}>\n**Buy-in:** ${lobby.betAmount} <:Gemini_Generated_Image_nele8wnel:1536424832177143898>\n**Guardian:** ${hasGuardian ? '✅' : '❌'}\n**Jester:** ${hasJester ? '✅' : '❌'}\n\nType \`+j\` to enter! (1/15 Players) (Min: 5)`);
+      
+      await message.channel.send({ embeds: [openEmbed] });
+    } catch (err: any) {
+      await message.reply(err.message);
+    }
   } else if (command === 'j' || command === 'join') {
     try {
       const lobbyTemp = LobbyService.getLobby(message.channel.id);
@@ -473,7 +533,8 @@ async function processCommand(command: string, args: string[], message: any) {
       if (result.destroyed) {
         await message.reply(`🚪 <@${message.author.id}> left the lobby. Since they were the host (or the lobby is empty), the lobby has been **cancelled**.`);
       } else {
-        await message.reply(`🚪 <@${message.author.id}> left the lobby. (${result.lobby.players.length}/8 Players)`);
+        const max = result.lobby.gameType === 'MAFIA' ? 15 : 8;
+        await message.reply(`🚪 <@${message.author.id}> left the lobby. (${result.lobby.players.length}/${max} Players)`);
       }
     } catch (err: any) {
       await message.reply(`❌ ${err.message}`);
@@ -483,10 +544,11 @@ async function processCommand(command: string, args: string[], message: any) {
     if (!lobby) return await message.reply('There is no active lobby in this channel.');
     
     const playerList = lobby.players.map(p => `<@${p}>`).join('\n');
+    const max = lobby.gameType === 'MAFIA' ? 15 : 8;
     const lobbyEmbed = new EmbedBuilder()
       .setColor('#00FFFF')
       .setTitle('👥 Current Lobby')
-      .setDescription(`**Host:** <@${lobby.hostId}>\n**Game:** ${lobby.gameType}\n**Buy-in:** ${lobby.betAmount} <:Gemini_Generated_Image_nele8wnel:1536424832177143898>\n\n**Players in Lobby (${lobby.players.length}/8):**\n${playerList}`);
+      .setDescription(`**Host:** <@${lobby.hostId}>\n**Game:** ${lobby.gameType}\n**Buy-in:** ${lobby.betAmount} <:Gemini_Generated_Image_nele8wnel:1536424832177143898>\n\n**Players in Lobby (${lobby.players.length}/${max}):**\n${playerList}`);
       
     await message.reply({ embeds: [lobbyEmbed] });
   } else if (command === 'end') {
@@ -519,6 +581,10 @@ async function processCommand(command: string, args: string[], message: any) {
       lobby.state = 'IN_PROGRESS';
       await message.reply('🔪 **Starting Imposter! Check your DMs for your secret word!**');
       ImposterGame.startMatch(client, message.channel.id).catch(console.error);
+    } else if (lobby.gameType === 'MAFIA') {
+      lobby.state = 'IN_PROGRESS';
+      // Bot joins VC and starts logic
+      MafiaGame.startMatch(client, message.channel.id).catch(console.error);
     }
   } else if (command === 'ping') {
     await message.reply('Pong! 🏓 The Casino engine is running via Prefix Command!');

@@ -1,5 +1,5 @@
 export type GameMode = 'HIGH' | 'LOW';
-export type GameType = 'BATTLE' | 'CLOSEST' | 'CRASH' | 'IMPOSTER';
+export type GameType = 'BATTLE' | 'CLOSEST' | 'CRASH' | 'IMPOSTER' | 'MAFIA';
 
 export interface Lobby {
   hostId: string;
@@ -8,6 +8,7 @@ export interface Lobby {
   rounds: number;
   betAmount: number;
   mode?: GameMode;
+  settings?: any;
   players: string[]; // Array of discord user IDs
   state: 'SETUP' | 'WAITING' | 'IN_PROGRESS' | 'FINISHED';
 }
@@ -16,7 +17,7 @@ export class LobbyService {
   // Store lobbies by channelId (one active lobby per channel to prevent chaos)
   static activeLobbies = new Map<string, Lobby>();
 
-  static createLobby(channelId: string, hostId: string, gameType: 'BATTLE' | 'CLOSEST') {
+  static createLobby(channelId: string, hostId: string, gameType: GameType) {
     if (this.activeLobbies.has(channelId)) {
       throw new Error('There is already an active game happening in this channel!');
     }
@@ -44,7 +45,7 @@ export class LobbyService {
     if (!lobby) throw new Error('No active lobby exists in this channel.');
     if (lobby.state !== 'WAITING') throw new Error('The lobby is not currently accepting players.');
     if (lobby.players.includes(userId)) throw new Error('You have already joined this lobby.');
-    if (lobby.players.length >= 8) throw new Error('Lobby is full! Maximum 8 players allowed.');
+    if (lobby.players.length >= 15) throw new Error('Lobby is full! Maximum 15 players allowed.');
 
     lobby.players.push(userId);
     return lobby;
