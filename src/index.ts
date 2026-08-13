@@ -228,16 +228,18 @@ async function processCommand(command: string, args: string[], message: any) {
     } else if (sub === 'mafia') {
         const mafiaEmbed = new EmbedBuilder()
           .setColor('#2C3E50')
-          .setTitle('🕵️ Guide: Mafia (+mafia)')
+          .setTitle('🎙️ Guide: Voice Mafia (+mafia)')
           .setDescription(`
-**Objective:** Eliminate the Mafia before they eliminate the village!
+**Objective:** Survive the night and execute your enemies! (Min 5, Max 15 players).
 
 **How to Play:**
-1. Host starts a lobby with \`+mafia\`.
-2. Players join and are assigned secret roles (Mafia, Doctor, Detective, Villager).
-3. Night Phase: Mafia selects a victim; Doctor can save someone; Detective can investigate a player.
-4. Day Phase: Everyone discusses and votes on who to lynch.
-5. The game continues until either all Mafia are eliminated or the Mafia outnumbers the villagers!`);
+1. The host must be in a Voice Channel. They type \`+mafia\` to create the lobby.
+2. The bot asks for the Buy-in Bet and if you want to include the **Guardian** or **Jester**.
+3. Players type \`+j\` to join. Host types \`+s\` to start.
+4. **The Bot joins the VC and takes over!** It auto-mutes everyone when Night falls.
+5. **Night Phase:** The Imposter gets a DM to kill someone. The Guardian gets a DM to save someone.
+6. **Day Phase:** The bot unmutes everyone. You have 45s to argue, then 20s to vote in the chat.
+7. If the Jester is voted out, they win instantly! Otherwise, find the Imposter to win!`);
         return await message.reply({ embeds: [mafiaEmbed] });
       }
 
