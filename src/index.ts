@@ -27,6 +27,7 @@ const client = new Client({
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildVoiceStates,
     GatewayIntentBits.DirectMessages, // Needed for Custom Game 2 (DM numbers)
   ],
   partials: [Partials.Channel, Partials.Message], // Needed to receive DMs
