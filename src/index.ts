@@ -288,12 +288,6 @@ async function processCommand(command: string, args: string[], message: any) {
       return await message.reply('❌ **There is already an active Roulette table in this channel!** Please wait for it to finish, or use a different channel.');
     }
   }
-  
-  if (command === 'roulette') {
-    if (LobbyService.activeLobbies.has(message.channel.id)) {
-      return await message.reply('❌ **There is already an active multiplayer lobby in this channel!** Please wait for it to finish, or use a different channel.');
-    }
-  }
 
   // Handle other commands
   if (command === 'hc' || command === 'host_closest') {
