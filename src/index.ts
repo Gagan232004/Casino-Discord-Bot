@@ -281,6 +281,20 @@ async function processCommand(command: string, args: string[], message: any) {
     return await message.reply('🛑 **Stop!** You must register first. Please type \`+debut\` to unlock the casino and get your starting <:Gemini_Generated_Image_nele8wnel:1536424832177143898>!');
   }
 
+  // 3. Channel Locks for Multiplayer Games
+  const lobbyCommands = ['hc', 'host_closest', 'hcr', 'host_crash', 'hi', 'host_imposter', 'hb', 'host_battle', 'mafia'];
+  if (lobbyCommands.includes(command)) {
+    if (RouletteGame.activeTables.has(message.channel.id)) {
+      return await message.reply('❌ **There is already an active Roulette table in this channel!** Please wait for it to finish, or use a different channel.');
+    }
+  }
+  
+  if (command === 'roulette') {
+    if (LobbyService.activeLobbies.has(message.channel.id)) {
+      return await message.reply('❌ **There is already an active multiplayer lobby in this channel!** Please wait for it to finish, or use a different channel.');
+    }
+  }
+
   // Handle other commands
   if (command === 'hc' || command === 'host_closest') {
     try {
