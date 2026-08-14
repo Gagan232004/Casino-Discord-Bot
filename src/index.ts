@@ -509,27 +509,91 @@ async function processCommand(command: string, args: string[], message: any) {
       if (isNaN(bet) || bet <= 0) { LobbyService.clearLobby(message.channel.id); return (await message.channel.send('Invalid bet amount. Lobby cancelled.')); }
       lobby.betAmount = bet;
 
-      setupEmbed.setDescription('**Include the Guardian role?**\nType `yes` or `no`.');
-      await message.channel.send({ embeds: [setupEmbed] });
-      const guardCol = await message.channel.awaitMessages({ filter, max: 1, time: 30000, errors: ['time'] }).catch(() => null);
-      if (!guardCol) { LobbyService.clearLobby(message.channel.id); return (await message.channel.send('Setup timed out.')); }
-      const hasGuardian = guardCol.first()?.content.toLowerCase() === 'yes';
+      const configEmbed = new EmbedBuilder()
+        .setColor('#8B0000')
+        .setTitle('🎙️ Mafia Game Configuration')
+        .setDescription(`**Bet Amount:** ${lobby.betAmount} <:Gemini_Generated_Image_nele8wnel:1536424832177143898>\n\nUse the menus below to configure the game settings. When you are ready, click **Open Lobby**!`);
 
-      setupEmbed.setDescription('**Include the Jester role?**\nType `yes` or `no`.');
-      await message.channel.send({ embeds: [setupEmbed] });
-      const jestCol = await message.channel.awaitMessages({ filter, max: 1, time: 30000, errors: ['time'] }).catch(() => null);
-      if (!jestCol) { LobbyService.clearLobby(message.channel.id); return (await message.channel.send('Setup timed out.')); }
-      const hasJester = jestCol.first()?.content.toLowerCase() === 'yes';
+      lobby.settings = { hasGuardian: false, hasJester: false, discussTime: 60, voteTime: 30 };
 
-      lobby.settings = { hasGuardian, hasJester };
-      lobby.state = 'WAITING';
+      const rowRoles = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+        new StringSelectMenuBuilder()
+          .setCustomId('mafia_roles')
+          .setPlaceholder('Select Optional Roles...')
+          .setMinValues(0)
+          .setMaxValues(2)
+          .addOptions(
+            { label: 'Guardian (Protects at night)', value: 'guardian', emoji: '🛡️' },
+            { label: 'Jester (Wants to be executed)', value: 'jester', emoji: '🤡' }
+          )
+      );
 
-      const openEmbed = new EmbedBuilder()
-        .setColor('#800080')
-        .setTitle('🎙️ Voice Mafia Lobby OPEN!')
-        .setDescription(`**Host:** <@${lobby.hostId}>\n**Buy-in:** ${lobby.betAmount} <:Gemini_Generated_Image_nele8wnel:1536424832177143898>\n**Guardian:** ${hasGuardian ? '✅' : '❌'}\n**Jester:** ${hasJester ? '✅' : '❌'}\n\nType \`+j\` to enter! (1/15 Players) (Min: 5)`);
-      
-      await message.channel.send({ embeds: [openEmbed] });
+      const rowDiscuss = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+        new StringSelectMenuBuilder()
+          .setCustomId('mafia_discuss')
+          .setPlaceholder('Discussion Time (Default: 60s)')
+          .addOptions(
+            { label: '30 Seconds', value: '30' },
+            { label: '45 Seconds', value: '45' },
+            { label: '60 Seconds (1 Min)', value: '60' },
+            { label: '90 Seconds (1.5 Min)', value: '90' },
+            { label: '120 Seconds (2 Min)', value: '120' }
+          )
+      );
+
+      const rowVote = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+        new StringSelectMenuBuilder()
+          .setCustomId('mafia_vote')
+          .setPlaceholder('Voting Time (Default: 30s)')
+          .addOptions(
+            { label: '15 Seconds', value: '15' },
+            { label: '20 Seconds', value: '20' },
+            { label: '30 Seconds', value: '30' },
+            { label: '45 Seconds', value: '45' },
+            { label: '60 Seconds', value: '60' }
+          )
+      );
+
+      const rowConfirm = new ActionRowBuilder<any>().addComponents(
+        { type: ComponentType.Button, customId: 'mafia_confirm', label: '✅ Open Lobby', style: 3 }
+      );
+
+      const configMsg = await message.channel.send({ embeds: [configEmbed], components: [rowRoles, rowDiscuss, rowVote, rowConfirm] });
+
+      const collector = configMsg.createMessageComponentCollector({ filter: i => i.user.id === message.author.id, time: 60000 });
+
+      collector.on('collect', async (i) => {
+        if (i.customId === 'mafia_roles') {
+          lobby.settings.hasGuardian = i.values.includes('guardian');
+          lobby.settings.hasJester = i.values.includes('jester');
+          await i.reply({ content: 'Roles updated!', ephemeral: true });
+        } else if (i.customId === 'mafia_discuss') {
+          lobby.settings.discussTime = parseInt(i.values[0]);
+          await i.reply({ content: `Discussion time set to ${i.values[0]}s!`, ephemeral: true });
+        } else if (i.customId === 'mafia_vote') {
+          lobby.settings.voteTime = parseInt(i.values[0]);
+          await i.reply({ content: `Voting time set to ${i.values[0]}s!`, ephemeral: true });
+        } else if (i.customId === 'mafia_confirm') {
+          collector.stop('confirmed');
+          await i.deferUpdate().catch(() => {});
+        }
+      });
+
+      collector.on('end', async (collected, reason) => {
+        if (reason !== 'confirmed') {
+          LobbyService.clearLobby(message.channel.id);
+          await configMsg.edit({ content: '❌ Setup timed out. Lobby cancelled.', embeds: [], components: [] });
+          return;
+        }
+
+        lobby.state = 'WAITING';
+        const openEmbed = new EmbedBuilder()
+          .setColor('#8B0000')
+          .setTitle('🎙️ Voice Mafia Lobby OPEN!')
+          .setDescription(`**Host:** <@${lobby.hostId}>\n**Buy-in:** ${lobby.betAmount} <:Gemini_Generated_Image_nele8wnel:1536424832177143898>\n\n**Settings:**\n🛡️ Guardian: ${lobby.settings.hasGuardian ? '✅' : '❌'}\n🤡 Jester: ${lobby.settings.hasJester ? '✅' : '❌'}\n🗣️ Discuss: ${lobby.settings.discussTime}s\n🗳️ Vote: ${lobby.settings.voteTime}s\n\nType \`+j\` to enter! (1/15 Players) (Min: 5)`);
+        
+        await configMsg.edit({ embeds: [openEmbed], components: [] });
+      });
     } catch (err: any) {
       await message.reply(err.message);
     }

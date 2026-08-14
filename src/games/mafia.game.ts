@@ -279,15 +279,17 @@ export class MafiaGame {
       }
 
       // Discussion
-      const discussEnd = Math.floor(Date.now() / 1000) + 60;
-      await privateText.send(`🗣️ **Discussion Phase (60 seconds)**\nTalk in the VC and figure out who is suspicious! Discussion ends <t:${discussEnd}:R>!`);
-      await speak("You have 60 seconds to discuss. The timer starts now.");
-      await new Promise(r => setTimeout(r, 60000));
+      const discussDuration = lobby.settings?.discussTime || 60;
+      const discussEnd = Math.floor(Date.now() / 1000) + discussDuration;
+      await privateText.send(`🗣️ **Discussion Phase (${discussDuration} seconds)**\nTalk in the VC and figure out who is suspicious! Discussion ends <t:${discussEnd}:R>!`);
+      await speak(`You have ${discussDuration} seconds to discuss. The timer starts now.`);
+      await new Promise(r => setTimeout(r, discussDuration * 1000));
 
       // Voting
-      const voteEnd = Math.floor(Date.now() / 1000) + 30;
-      await privateText.send(`🗳️ **Voting Phase (30 seconds)**\nSelect who to execute! Voting ends <t:${voteEnd}:R>!`);
-      await speak("Voting has started. You have 30 seconds.");
+      const voteDuration = lobby.settings?.voteTime || 30;
+      const voteEnd = Math.floor(Date.now() / 1000) + voteDuration;
+      await privateText.send(`🗳️ **Voting Phase (${voteDuration} seconds)**\nSelect who to execute! Voting ends <t:${voteEnd}:R>!`);
+      await speak(`Voting has started. You have ${voteDuration} seconds.`);
 
       const richOptions = await Promise.all(alivePlayers.map(async (p) => {
         const u = await client.users.fetch(p);
@@ -299,7 +301,7 @@ export class MafiaGame {
 
       const voteMsg = await privateText.send({ content: 'Vote now:', components: [row] });
       const votes = new Map<string, string>();
-      const collector = voteMsg.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 30000 });
+      const collector = voteMsg.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: voteDuration * 1000 });
 
       collector.on('collect', async (interaction) => {
         if (!alivePlayers.includes(interaction.user.id)) {
