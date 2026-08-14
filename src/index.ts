@@ -1,6 +1,6 @@
 // @ts-nocheck
 import 'dotenv/config';
-import { Client, GatewayIntentBits, Partials, EmbedBuilder, AttachmentBuilder, ActionRowBuilder, StringSelectMenuBuilder, ComponentType } from 'discord.js';
+import { Client, GatewayIntentBits, Partials, EmbedBuilder, AttachmentBuilder, ActionRowBuilder, StringSelectMenuBuilder, ComponentType, ButtonBuilder } from 'discord.js';
 import { EconomyService } from './services/economy.service.js';
 import { LobbyService } from './services/lobby.service.js';
 import { NumberBattleGame } from './games/number_battle.game.js';
@@ -559,8 +559,8 @@ async function processCommand(command: string, args: string[], message: any) {
           )
       );
 
-      const rowConfirm = new ActionRowBuilder<any>().addComponents(
-        { type: ComponentType.Button, customId: 'mafia_confirm', label: '✅ Open Lobby', style: 3 }
+      const rowConfirm = new ActionRowBuilder<ButtonBuilder>().addComponents(
+        new ButtonBuilder().setCustomId('mafia_confirm').setLabel('✅ Open Lobby').setStyle(3) // 3 = Success/Green
       );
 
       const configMsg = await message.channel.send({ embeds: [configEmbed], components: [rowRoles, rowDiscuss, rowVote, rowConfirm] });
