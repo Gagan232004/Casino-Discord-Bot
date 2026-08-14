@@ -362,7 +362,14 @@ export class MafiaGame {
       }
     }
 
-    // Cleanup & Summary
+    // Cleanup & Summary (Unmute everyone so dead players can talk)
+    for (const p of lobby.players) {
+      try {
+        await privateText.permissionOverwrites.edit(p, { SendMessages: true });
+        await privateVc.permissionOverwrites.edit(p, { Speak: true });
+      } catch (err) {}
+    }
+
     let summaryText = "";
     for(const p of lobby.players) {
        summaryText += `<@${p}> - **${getRoleName(p)}**\n`;
