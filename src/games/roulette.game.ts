@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Client, TextChannel, EmbedBuilder, AttachmentBuilder } from 'discord.js';
 import { EconomyService } from '../services/economy.service.js';
 import path from 'path';

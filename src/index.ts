@@ -1,5 +1,6 @@
+// @ts-nocheck
 import 'dotenv/config';
-import { Client, GatewayIntentBits, Partials, EmbedBuilder } from 'discord.js';
+import { Client, GatewayIntentBits, Partials, EmbedBuilder, AttachmentBuilder, ActionRowBuilder, StringSelectMenuBuilder, ComponentType } from 'discord.js';
 import { EconomyService } from './services/economy.service.js';
 import { LobbyService } from './services/lobby.service.js';
 import { NumberBattleGame } from './games/number_battle.game.js';

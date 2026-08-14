@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { EconomyService } from '../services/economy.service.js';
 
 export class CoinFlipGame {

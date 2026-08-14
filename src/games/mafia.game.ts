@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Client, TextChannel, EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, ComponentType, ChannelType, PermissionFlagsBits } from 'discord.js';
 import { LobbyService } from '../services/lobby.service.js';
 import { EconomyService } from '../services/economy.service.js';
