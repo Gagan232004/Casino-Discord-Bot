@@ -70,10 +70,11 @@ export class RouletteGame {
 
       // Check balance and deduct
       try {
+        m.react('✅').catch(() => {});
         await EconomyService.adjustBalance(guildId, m.author.id, -amount, 'Roulette', 'BET');
         bets.push({ userId: m.author.id, amount, choice });
-        await m.react('✅');
       } catch (e: any) {
+        m.reactions.cache.get('✅')?.remove().catch(() => {});
         await m.reply(`❌ ${e.message}`);
       }
     });

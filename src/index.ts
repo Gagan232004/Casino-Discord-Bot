@@ -674,14 +674,23 @@ async function processCommand(command: string, args: string[], message: any) {
     if (choice !== 'HEADS' && choice !== 'TAILS') return await message.reply('❌ You must pick HEADS or TAILS.');
 
     try {
+      // 1. Send the spinning coin GIF immediately
+      const spinEmbed = new EmbedBuilder()
+        .setColor('#FFA500')
+        .setTitle('🪙 Flipping the coin...')
+        .setImage('https://media.tenor.com/264qJk02YF8AAAAC/coin-flip-flip.gif');
+      const flipMessage = await message.reply({ embeds: [spinEmbed] });
+
+      // 2. Play game (DB transaction)
       const result = await CoinFlipGame.play(message.guild.id, message.author.id, amount, choice as 'HEADS' | 'TAILS');
       
-      const embed = new EmbedBuilder()
+      // 3. Edit the message instantly with the final result
+      const resultEmbed = new EmbedBuilder()
         .setColor(result.won ? '#00FF00' : '#FF0000')
         .setTitle(`🪙 Coin Flip: ${result.result}`)
         .setDescription(`You bet **${amount}** on **${choice}**.\n\n${result.won ? `🎉 **YOU WON!**` : `💥 **YOU LOST!**`}\n\nYour new balance is **${result.newBalance} <:Gemini_Generated_Image_nele8wnel:1536424832177143898>**`);
         
-      await message.reply({ embeds: [embed] });
+      await flipMessage.edit({ embeds: [resultEmbed] });
     } catch (err: any) {
       await message.reply(`❌ ${err.message}`);
     }

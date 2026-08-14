@@ -2,7 +2,7 @@ import { Client, TextChannel, EmbedBuilder, ActionRowBuilder, StringSelectMenuBu
 import { LobbyService } from '../services/lobby.service.js';
 import { EconomyService } from '../services/economy.service.js';
 import { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus, VoiceConnectionStatus } from '@discordjs/voice';
-import * as googleTTS from 'google-tts-api';
+import discordTTS from 'discord-tts';
 
 export class MafiaGame {
   static async startMatch(client: Client, channelId: string) {
@@ -53,8 +53,8 @@ export class MafiaGame {
     const speak = (text: string) => {
       return new Promise<void>((resolve) => {
         try {
-          const url = googleTTS.getAudioUrl(text, { lang: 'en', slow: false, host: 'https://translate.google.com' });
-          const resource = createAudioResource(url);
+          const stream = discordTTS.getVoiceStream(text);
+          const resource = createAudioResource(stream);
           player.play(resource);
           player.once(AudioPlayerStatus.Idle, () => resolve());
           player.once('error', (err) => {
@@ -63,7 +63,7 @@ export class MafiaGame {
           });
         } catch (e) {
           console.error('TTS URL Error:', e);
-          resolve(); 
+          resolve();
         }
       });
     };
