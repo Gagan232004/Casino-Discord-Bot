@@ -16,10 +16,14 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Ensure the token exists
-const token = process.env.DISCORD_TOKEN;
+const rawToken = process.env.DISCORD_TOKEN || '';
+const token = rawToken.replace(/['"]/g, '').trim();
+
 if (!token) {
-  console.error('❌ DISCORD_TOKEN is missing in the .env file!');
+  console.error("CRITICAL ERROR: Please add your DISCORD_TOKEN to the environment variables!");
   process.exit(1);
+} else {
+  console.log(`[DEBUG] Token Loaded! Length: ${token.length} chars. Starts with: ${token.substring(0, 5)}`);
 }
 
 // Initialize the Discord Client with the necessary intents
