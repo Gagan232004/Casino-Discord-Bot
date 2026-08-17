@@ -3,7 +3,7 @@ import { Client, TextChannel, EmbedBuilder, ActionRowBuilder, StringSelectMenuBu
 import { LobbyService } from '../services/lobby.service.js';
 import { EconomyService } from '../services/economy.service.js';
 
-import { CRICKETERS } from '../data/cricketers.js';
+import { CRICKETER_CATEGORIES, ALL_CRICKETERS } from '../data/cricketers.js';
 
 export class ImposterGame {
   static async startMatch(client: Client, channelId: string) {
@@ -36,10 +36,31 @@ export class ImposterGame {
     const imposterIndex = Math.floor(Math.random() * lobby.players.length);
     const imposterId = lobby.players[imposterIndex];
     
-    // Pick 2 random unique cricketers
-    let shuffledList = [...CRICKETERS].sort(() => 0.5 - Math.random());
-    const innoWord = shuffledList[0];
-    const impWord = shuffledList[1];
+    const diff = lobby.settings?.difficulty || 'easy';
+    let innoWord = '';
+    let impWord = '';
+
+    if (diff === 'hard') {
+      // Hard: Pick 2 players from the EXACT SAME specific sub-category (e.g. 2 Indian Wicketkeepers)
+      const categories = Object.values(CRICKETER_CATEGORIES);
+      const chosenCat = categories[Math.floor(Math.random() * categories.length)];
+      const shuffled = [...chosenCat].sort(() => 0.5 - Math.random());
+      innoWord = shuffled[0];
+      impWord = shuffled[1];
+    } else if (diff === 'medium') {
+      // Medium: Same broad role (Batsman vs Batsman), but different countries
+      const isBatsman = Math.random() > 0.5;
+      const cat1 = isBatsman ? CRICKETER_CATEGORIES.indian_batsmen : CRICKETER_CATEGORIES.indian_bowlers;
+      const cat2 = isBatsman ? CRICKETER_CATEGORIES.foreign_batsmen : CRICKETER_CATEGORIES.foreign_bowlers;
+      innoWord = cat1[Math.floor(Math.random() * cat1.length)];
+      impWord = cat2[Math.floor(Math.random() * cat2.length)];
+      if (Math.random() > 0.5) [innoWord, impWord] = [impWord, innoWord]; // Shuffle which is imposter
+    } else {
+      // Easy: Completely random from the entire pool, almost guaranteed to be very different
+      const shuffledList = [...ALL_CRICKETERS].sort(() => 0.5 - Math.random());
+      innoWord = shuffledList[0];
+      impWord = shuffledList[1];
+    }
 
     let alivePlayers = [...lobby.players];
     const initialInnocents = lobby.players.filter(p => p !== imposterId);
@@ -74,20 +95,15 @@ export class ImposterGame {
       await channel.send({ embeds: [roundEmbed] });
 
       // CLUE PHASE
-      const diff = lobby.settings?.difficulty || 'easy';
-      let maxTime = 25;
-      if (diff === 'medium') maxTime = 15;
-      if (diff === 'hard') maxTime = 8;
-      
       // Randomize the order of players each round!
       let roundOrder = [...alivePlayers].sort(() => 0.5 - Math.random());
 
       for (const playerId of roundOrder) {
-        const promptMsg = await channel.send(`🗣️ <@${playerId}>, it is your turn! You have **${maxTime} seconds** to type a clue.`);
+        const promptMsg = await channel.send(`🗣️ <@${playerId}>, it is your turn! You have **20 seconds** to type a clue.`);
         
         const filter = (m: any) => m.author.id === playerId;
         
-        let timeLeft = maxTime;
+        let timeLeft = 20;
         const interval = setInterval(() => {
           timeLeft -= 4;
           if (timeLeft > 0) {
@@ -96,7 +112,7 @@ export class ImposterGame {
         }, 4000);
         
         try {
-          const collected = await channel.awaitMessages({ filter, max: 1, time: maxTime * 1000, errors: ['time'] });
+          const collected = await channel.awaitMessages({ filter, max: 1, time: 20000, errors: ['time'] });
           clearInterval(interval);
           const clue = collected.first()?.content;
           await promptMsg.edit(`✅ <@${playerId}> gave a clue: **"${clue}"**`).catch(() => {});

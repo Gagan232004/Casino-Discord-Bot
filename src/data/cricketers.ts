@@ -1,43 +1,37 @@
-export const CRICKETERS = [
-  "Virat Kohli", "MS Dhoni", "Rohit Sharma", "Sachin Tendulkar", "Jasprit Bumrah",
-  "Hardik Pandya", "KL Rahul", "Rishabh Pant", "Ravindra Jadeja", "Shikhar Dhawan",
-  "Suryakumar Yadav", "Shubman Gill", "Mohammed Shami", "Mohammed Siraj", "R Ashwin",
-  "Yuzvendra Chahal", "Kuldeep Yadav", "Bhuvneshwar Kumar", "Dinesh Karthik", "Sanju Samson",
-  "Ishan Kishan", "Shreyas Iyer", "Axar Patel", "Deepak Chahar", "Shardul Thakur",
-  "Washington Sundar", "Ruturaj Gaikwad", "Prithvi Shaw", "Umesh Yadav", "Ishant Sharma",
-  "Cheteshwar Pujara", "Ajinkya Rahane", "Mayank Agarwal", "Hanuma Vihari", "Wriddhiman Saha",
-  "Rajat Patidar", "Rahul Tripathi", "Deepak Hooda", "Venkatesh Iyer", "Shivam Dube",
-  "Rinku Singh", "Yashasvi Jaiswal", "Tilak Varma", "Sai Sudharsan", "Devdutt Padikkal",
-  "Navdeep Saini", "Avesh Khan", "Arshdeep Singh", "Umran Malik", "Prasidh Krishna",
-  "Khaleel Ahmed", "T Natarajan", "Rahul Chahar", "Ravi Bishnoi", "Varun Chakaravarthy",
-  "Krunal Pandya", "Nitish Rana", "Manish Pandey", "Kedar Jadhav", "Vijay Shankar",
-  "Rahul Tewatia", "Shahrukh Khan", "Abdul Samad", "Harshal Patel", "Mohit Sharma",
-  "Piyush Chawla", "Amit Mishra", "Karn Sharma", "Sandeep Sharma", "Jaydev Unadkat",
-  "Murali Vijay", "Gautam Gambhir", "Virender Sehwag", "Sourav Ganguly", "Rahul Dravid",
-  "VVS Laxman", "Yuvraj Singh", "Suresh Raina", "Zaheer Khan", "Ashish Nehra",
-  "Harbhajan Singh", "Anil Kumble", "Javagal Srinath", "Venkatesh Prasad", "Ajit Agarkar",
-  "Irfan Pathan", "Yusuf Pathan", "Munaf Patel", "Sreesanth", "RP Singh",
-  "Praveen Kumar", "Pragyan Ojha", "Robin Uthappa", "Parthiv Patel", "Naman Ojha",
-  "Saurabh Tiwary", "Abhinav Mukund", "Subramaniam Badrinath", "Cheteshwar Pujara", "Wasim Jaffer",
-  "Aakash Chopra", "Sanjay Bangar", "Hemang Badani", "Ramesh Powar", "Murali Kartik",
-  "Laxmipathy Balaji", "Sridharan Sriram", "Reetinder Sodhi", "Vijay Dahiya", "Sameer Dighe",
-  "Hrishikesh Kanitkar", "Amay Khurasiya", "Nayan Mongia", "Saba Karim", "Sadagoppan Ramesh",
-  "Devang Gandhi", "Gagan Khoda", "Sunil Joshi", "Dodda Ganesh", "David Johnson",
-  "Salil Ankola", "Abey Kuruvilla", "Nilesh Kulkarni", "Sairaj Bahutule", "Pravin Amre",
-  "Vinod Kambli", "Ajay Jadeja", "Navjot Singh Sidhu", "Ravi Shastri", "Sanjay Manjrekar",
-  "Kapil Dev", "Sunil Gavaskar", "Dilip Vengsarkar", "Mohinder Amarnath", "Kris Srikkanth",
-  "Syed Kirmani", "Roger Binny", "Madan Lal", "Balwinder Sandhu", "Yashpal Sharma",
-  "Kirti Azad", "Sandeep Patil", "Gundappa Viswanath", "Eknath Solkar", "Farokh Engineer",
-  "Mansoor Ali Khan Pataudi", "Chandu Borde", "Salim Durani", "Polly Umrigar", "Vinoo Mankad",
-  "Vijay Hazare", "Lala Amarnath", "CK Nayudu", "Syed Mushtaq Ali", "Mohammad Azharuddin",
-  "Manoj Prabhakar", "Venkatapathy Raju", "Rajesh Chauhan", "Narendra Hirwani", "WV Raman",
-  "Woorkeri Raman", "Maninder Singh", "Chetan Sharma", "Shivlal Yadav", "Dilip Doshi",
-  "Bishan Singh Bedi", "Erapalli Prasanna", "Bhagwat Chandrasekhar", "Srinivas Venkataraghavan", "Abbas Ali Baig",
-  "Ramakant Desai", "Bapu Nadkarni", "ML Jaisimha", "Nari Contractor", "Pankaj Roy",
-  "Dattu Phadkar", "Vijay Merchant", "Mushtaq Ali", "Amarnath", "C.K. Nayudu",
-  "Pat Cummins", "Mitchell Starc", "Josh Hazlewood", "Nathan Lyon", "Steve Smith",
-  "David Warner", "Marnus Labuschagne", "Glenn Maxwell", "Travis Head", "Mitchell Marsh",
-  "Ben Stokes", "Joe Root", "Jos Buttler", "Jonny Bairstow", "Jofra Archer",
-  "Mark Wood", "James Anderson", "Stuart Broad", "Kane Williamson", "Trent Boult",
-  "Tim Southee", "Babar Azam", "Shaheen Afridi", "Mohammad Rizwan", "Rashid Khan"
-];
+export const CRICKETER_CATEGORIES = {
+  indian_batsmen: [
+    "Virat Kohli", "Rohit Sharma", "Sachin Tendulkar", "Shubman Gill", "Suryakumar Yadav",
+    "Shreyas Iyer", "Cheteshwar Pujara", "Ajinkya Rahane", "Virender Sehwag", "Sourav Ganguly",
+    "Rahul Dravid", "VVS Laxman", "Gautam Gambhir", "Shikhar Dhawan", "Yashasvi Jaiswal",
+    "Ruturaj Gaikwad", "Prithvi Shaw", "Mayank Agarwal", "Manish Pandey", "Murali Vijay"
+  ],
+  indian_bowlers: [
+    "Jasprit Bumrah", "Mohammed Shami", "Mohammed Siraj", "R Ashwin", "Yuzvendra Chahal",
+    "Kuldeep Yadav", "Bhuvneshwar Kumar", "Zaheer Khan", "Ashish Nehra", "Harbhajan Singh",
+    "Anil Kumble", "Javagal Srinath", "Ishant Sharma", "Umesh Yadav", "Arshdeep Singh",
+    "Navdeep Saini", "Avesh Khan", "Deepak Chahar", "Shardul Thakur", "T Natarajan",
+    "Amit Mishra", "Piyush Chawla", "Ravi Bishnoi", "Pragyan Ojha", "Munaf Patel"
+  ],
+  indian_wk_and_allrounders: [
+    "MS Dhoni", "Rishabh Pant", "KL Rahul", "Sanju Samson", "Dinesh Karthik",
+    "Ishan Kishan", "Hardik Pandya", "Ravindra Jadeja", "Yuvraj Singh", "Kapil Dev",
+    "Washington Sundar", "Axar Patel", "Krunal Pandya", "Stuart Binny", "Irfan Pathan",
+    "Yusuf Pathan", "Suresh Raina", "Kedar Jadhav", "Wriddhiman Saha", "Parthiv Patel"
+  ],
+  foreign_batsmen: [
+    "Steve Smith", "David Warner", "Marnus Labuschagne", "Kane Williamson", "Joe Root",
+    "Babar Azam", "AB de Villiers", "Chris Gayle", "Ricky Ponting", "Brian Lara",
+    "Viv Richards", "Kevin Pietersen", "Hashim Amla", "Faf du Plessis", "Ross Taylor",
+    "Kumar Sangakkara", "Mahela Jayawardene", "Sanath Jayasuriya", "Matthew Hayden", "Adam Gilchrist",
+    "Jos Buttler", "Jonny Bairstow", "Quinton de Kock", "Mohammad Rizwan", "Glenn Maxwell"
+  ],
+  foreign_bowlers: [
+    "Pat Cummins", "Mitchell Starc", "Josh Hazlewood", "Nathan Lyon", "Trent Boult",
+    "Tim Southee", "Shaheen Afridi", "Rashid Khan", "Jofra Archer", "Mark Wood",
+    "James Anderson", "Stuart Broad", "Dale Steyn", "Morne Morkel", "Kagiso Rabada",
+    "Shane Warne", "Glenn McGrath", "Brett Lee", "Muttiah Muralitharan", "Lasith Malinga",
+    "Wasim Akram", "Waqar Younis", "Shoaib Akhtar", "Curtly Ambrose", "Courtney Walsh"
+  ]
+};
+
+export const ALL_CRICKETERS = Object.values(CRICKETER_CATEGORIES).flat();

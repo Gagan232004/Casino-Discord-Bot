@@ -408,7 +408,7 @@ async function processCommand(command: string, args: string[], message: any) {
       lobby.rounds = rounds;
 
       // Await Difficulty
-      setupEmbed.setDescription('**Select Difficulty Level:**\nType `Easy`, `Medium`, or `Hard`.\n*(This affects how much time players get to answer!)*');
+      setupEmbed.setDescription('**Select Difficulty Level:**\nType `Easy`, `Medium`, or `Hard`.\n*(Hard = players will have very similar roles!)*');
       await message.channel.send({ embeds: [setupEmbed] });
       const diffCol = await message.channel.awaitMessages({ filter, max: 1, time: 30000, errors: ['time'] }).catch(() => null);
       if (!diffCol) { LobbyService.clearLobby(message.channel.id); return (await message.channel.send('Setup timed out.')); }
