@@ -3,34 +3,78 @@ export const CRICKETER_CATEGORIES = {
     "Virat Kohli", "Rohit Sharma", "Sachin Tendulkar", "Shubman Gill", "Suryakumar Yadav",
     "Shreyas Iyer", "Cheteshwar Pujara", "Ajinkya Rahane", "Virender Sehwag", "Sourav Ganguly",
     "Rahul Dravid", "VVS Laxman", "Gautam Gambhir", "Shikhar Dhawan", "Yashasvi Jaiswal",
-    "Ruturaj Gaikwad", "Prithvi Shaw", "Mayank Agarwal", "Manish Pandey", "Murali Vijay"
+    "Ruturaj Gaikwad", "Prithvi Shaw", "Mayank Agarwal", "Manish Pandey", "Murali Vijay",
+    "Mohammad Azharuddin", "Sunil Gavaskar", "Navjot Singh Sidhu", "Dilip Vengsarkar", "Kris Srikkanth",
+    "Rajat Patidar", "Rahul Tripathi", "Devdutt Padikkal", "Sai Sudharsan", "Karun Nair",
+    "Abhinav Mukund", "Subramaniam Badrinath", "Wasim Jaffer", "Aakash Chopra", "Sanjay Manjrekar",
+    "Sandeep Patil", "Mohinder Amarnath", "Gundappa Viswanath", "Pravin Amre", "Vinod Kambli",
+    "Ajay Jadeja", "Ambati Rayudu", "Robin Uthappa", "Manoj Tiwary", "Kedar Jadhav",
+    "Hanuma Vihari", "Mandeep Singh", "Saurabh Tiwary", "Hemang Badani", "Raman Lamba"
   ],
   indian_bowlers: [
     "Jasprit Bumrah", "Mohammed Shami", "Mohammed Siraj", "R Ashwin", "Yuzvendra Chahal",
     "Kuldeep Yadav", "Bhuvneshwar Kumar", "Zaheer Khan", "Ashish Nehra", "Harbhajan Singh",
     "Anil Kumble", "Javagal Srinath", "Ishant Sharma", "Umesh Yadav", "Arshdeep Singh",
     "Navdeep Saini", "Avesh Khan", "Deepak Chahar", "Shardul Thakur", "T Natarajan",
-    "Amit Mishra", "Piyush Chawla", "Ravi Bishnoi", "Pragyan Ojha", "Munaf Patel"
+    "Amit Mishra", "Piyush Chawla", "Ravi Bishnoi", "Pragyan Ojha", "Munaf Patel",
+    "Umran Malik", "Prasidh Krishna", "Khaleel Ahmed", "Mukesh Kumar", "Rahul Chahar",
+    "Varun Chakaravarthy", "Mohit Sharma", "Sandeep Sharma", "Jaydev Unadkat", "Praveen Kumar",
+    "Sreesanth", "RP Singh", "Irfan Pathan", "Venkatesh Prasad", "Ajit Agarkar",
+    "Laxmipathy Balaji", "Ramesh Powar", "Murali Kartik", "Narendra Hirwani", "Venkatapathy Raju",
+    "Bishan Singh Bedi", "Bhagwat Chandrasekhar", "Erapalli Prasanna", "Srinivas Venkataraghavan", "Dilip Doshi",
+    "Chetan Sharma", "Madan Lal", "Balwinder Sandhu", "Roger Binny", "Manoj Prabhakar"
   ],
   indian_wk_and_allrounders: [
     "MS Dhoni", "Rishabh Pant", "KL Rahul", "Sanju Samson", "Dinesh Karthik",
     "Ishan Kishan", "Hardik Pandya", "Ravindra Jadeja", "Yuvraj Singh", "Kapil Dev",
     "Washington Sundar", "Axar Patel", "Krunal Pandya", "Stuart Binny", "Irfan Pathan",
-    "Yusuf Pathan", "Suresh Raina", "Kedar Jadhav", "Wriddhiman Saha", "Parthiv Patel"
+    "Yusuf Pathan", "Suresh Raina", "Wriddhiman Saha", "Parthiv Patel", "Naman Ojha",
+    "Deepak Hooda", "Venkatesh Iyer", "Shivam Dube", "Rinku Singh", "Tilak Varma",
+    "Nitesh Rana", "Rahul Tewatia", "Vijay Shankar", "Abhishek Sharma", "Shahbaz Ahmed",
+    "Krunal Pandya", "Ravi Shastri", "Syed Kirmani", "Farokh Engineer", "Nayan Mongia",
+    "Saba Karim", "Sameer Dighe", "Deep Dasgupta", "Vijay Dahiya", "Rishi Dhawan",
+    "Jalaj Saxena", "Harshal Patel", "Abdul Samad", "Pawan Negi", "Bipul Sharma",
+    "Manoj Prabhakar", "Rohan Gavaskar", "Sanjay Bangar", "Joginder Sharma", "Abhishek Nayar"
   ],
   foreign_batsmen: [
     "Steve Smith", "David Warner", "Marnus Labuschagne", "Kane Williamson", "Joe Root",
     "Babar Azam", "AB de Villiers", "Chris Gayle", "Ricky Ponting", "Brian Lara",
     "Viv Richards", "Kevin Pietersen", "Hashim Amla", "Faf du Plessis", "Ross Taylor",
     "Kumar Sangakkara", "Mahela Jayawardene", "Sanath Jayasuriya", "Matthew Hayden", "Adam Gilchrist",
-    "Jos Buttler", "Jonny Bairstow", "Quinton de Kock", "Mohammad Rizwan", "Glenn Maxwell"
+    "Jos Buttler", "Jonny Bairstow", "Quinton de Kock", "Mohammad Rizwan", "Glenn Maxwell",
+    "Michael Clarke", "Mike Hussey", "Justin Langer", "Damien Martyn", "Mark Waugh",
+    "Steve Waugh", "Jacques Kallis", "Graeme Smith", "Herschelle Gibbs", "Gary Kirsten",
+    "Alastair Cook", "Ian Bell", "Eoin Morgan", "Jason Roy", "Alex Hales",
+    "Martin Guptill", "Brendon McCullum", "Stephen Fleming", "Devon Conway", "Tom Latham",
+    "Inzamam-ul-Haq", "Saeed Anwar", "Younis Khan", "Mohammad Yousuf", "Fakhar Zaman",
+    "Aravinda de Silva", "Tillakaratne Dilshan", "Marvan Atapattu", "Upul Tharanga", "Angelo Mathews",
+    "Shivnarine Chanderpaul", "Ramnaresh Sarwan", "Marlon Samuels", "Desmond Haynes", "Gordon Greenidge",
+    "Andy Flower", "Brendan Taylor", "Tamim Iqbal", "Mushfiqur Rahim", "Mahmudullah",
+    "David Miller", "Heinrich Klaasen", "Rassie van der Dussen", "Aiden Markram", "Temba Bavuma",
+    "Travis Head", "Usman Khawaja", "Cameron Green", "Harry Brook", "Ben Duckett",
+    "Najmul Hossain Shanto", "Litton Das", "Shai Hope", "Nicholas Pooran", "Kieron Pollard"
   ],
   foreign_bowlers: [
     "Pat Cummins", "Mitchell Starc", "Josh Hazlewood", "Nathan Lyon", "Trent Boult",
     "Tim Southee", "Shaheen Afridi", "Rashid Khan", "Jofra Archer", "Mark Wood",
     "James Anderson", "Stuart Broad", "Dale Steyn", "Morne Morkel", "Kagiso Rabada",
     "Shane Warne", "Glenn McGrath", "Brett Lee", "Muttiah Muralitharan", "Lasith Malinga",
-    "Wasim Akram", "Waqar Younis", "Shoaib Akhtar", "Curtly Ambrose", "Courtney Walsh"
+    "Wasim Akram", "Waqar Younis", "Shoaib Akhtar", "Curtly Ambrose", "Courtney Walsh",
+    "Jason Gillespie", "Mitchell Johnson", "Ryan Harris", "Peter Siddle", "Stuart MacGill",
+    "Allan Donald", "Shaun Pollock", "Makhaya Ntini", "Vernon Philander", "Lungi Ngidi",
+    "Anrich Nortje", "Keshav Maharaj", "Tabraiz Shamsi", "Imran Tahir", "Paul Adams",
+    "Richard Hadlee", "Daniel Vettori", "Shane Bond", "Neil Wagner", "Kyle Jamieson",
+    "Lockie Ferguson", "Matt Henry", "Ish Sodhi", "Mitchell Santner", "Chris Martin",
+    "Bob Willis", "Ian Botham", "Graeme Swann", "Moeen Ali", "Adil Rashid",
+    "Chris Woakes", "Ben Stokes", "Ollie Robinson", "Jack Leach", "Matthew Potts",
+    "Imran Khan", "Saqlain Mushtaq", "Saeed Ajmal", "Umar Gul", "Mohammad Amir",
+    "Haris Rauf", "Naseem Shah", "Shadab Khan", "Hasan Ali", "Yasir Shah",
+    "Chaminda Vaas", "Rangana Herath", "Dilhara Fernando", "Nuwan Kulasekara", "Suranga Lakmal",
+    "Dushmantha Chameera", "Wanindu Hasaranga", "Maheesh Theekshana", "Malcolm Marshall", "Michael Holding",
+    "Joel Garner", "Andy Roberts", "Ian Bishop", "Kemar Roach", "Jason Holder",
+    "Sunil Narine", "Samuel Badree", "Alzarri Joseph", "Shannon Gabriel", "Ravi Rampaul",
+    "Heath Streak", "Mashrafe Mortaza", "Mustafizur Rahman", "Shakib Al Hasan", "Taskin Ahmed",
+    "Mehidy Hasan Miraz", "Taijul Islam", "Mujeeb Ur Rahman", "Fazalhaq Farooqi", "Naveen-ul-Haq"
   ]
 };
 
