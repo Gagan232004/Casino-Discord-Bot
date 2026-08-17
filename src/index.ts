@@ -399,23 +399,24 @@ async function processCommand(command: string, args: string[], message: any) {
       lobby.betAmount = bet;
 
       // Await Rounds
-      setupEmbed.setDescription('**How many rounds?**\nType `3`, `5`, `7`, or `9`.');
+      setupEmbed.setDescription('**How many rounds?**\nType `1`, `3`, `5`, or `7`.');
       await message.channel.send({ embeds: [setupEmbed] });
       const roundsCol = await message.channel.awaitMessages({ filter, max: 1, time: 30000, errors: ['time'] }).catch(() => null);
       if (!roundsCol) { LobbyService.clearLobby(message.channel.id); return (await message.channel.send('Setup timed out.')); }
       const rounds = parseInt(roundsCol.first()?.content || '0');
-      if (![3, 5, 7, 9].includes(rounds)) { LobbyService.clearLobby(message.channel.id); return (await message.channel.send('Invalid rounds.')); }
+      if (![1, 3, 5, 7].includes(rounds)) { LobbyService.clearLobby(message.channel.id); return (await message.channel.send('Invalid rounds.')); }
       lobby.rounds = rounds;
 
-      // Await Topic
-      setupEmbed.setDescription('**Select a Topic Category:**\nType `1` for Cricketer\nType `2` for Footballer\nType `3` for Celebrity');
+      // Await Difficulty
+      setupEmbed.setDescription('**Select Difficulty Level:**\nType `Easy`, `Medium`, or `Hard`.\n*(This affects how much time players get to answer!)*');
       await message.channel.send({ embeds: [setupEmbed] });
-      const topicCol = await message.channel.awaitMessages({ filter, max: 1, time: 30000, errors: ['time'] }).catch(() => null);
-      if (!topicCol) { LobbyService.clearLobby(message.channel.id); return (await message.channel.send('Setup timed out.')); }
-      const topic = topicCol.first()?.content.trim() || '1';
-      if (!['1', '2', '3'].includes(topic)) { LobbyService.clearLobby(message.channel.id); return (await message.channel.send('Invalid topic.')); }
+      const diffCol = await message.channel.awaitMessages({ filter, max: 1, time: 30000, errors: ['time'] }).catch(() => null);
+      if (!diffCol) { LobbyService.clearLobby(message.channel.id); return (await message.channel.send('Setup timed out.')); }
+      const diff = diffCol.first()?.content.trim().toLowerCase() || 'easy';
+      if (!['easy', 'medium', 'hard'].includes(diff)) { LobbyService.clearLobby(message.channel.id); return (await message.channel.send('Invalid difficulty.')); }
       
-      lobby.mode = topic as any;
+      lobby.settings = { difficulty: diff };
+      lobby.mode = '1' as any; // We only use cricketers now based on user request
 
       // Setup Complete!
       lobby.state = 'WAITING';
@@ -654,6 +655,7 @@ async function processCommand(command: string, args: string[], message: any) {
     const lobby = LobbyService.getLobby(message.channel.id);
     if (!lobby) return (await message.reply('There is no lobby to start!'));
     if (lobby.hostId !== message.author.id) return (await message.reply('Only the host can start the game!'));
+    if (lobby.state !== 'WAITING') return (await message.reply('❌ The game has already been started!'));
     if (lobby.players.length < 2) return (await message.reply('You need at least 2 players to start!'));
     
     if (lobby.gameType === 'BATTLE') {
