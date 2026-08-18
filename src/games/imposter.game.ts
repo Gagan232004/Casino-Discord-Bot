@@ -3,7 +3,7 @@ import { Client, TextChannel, EmbedBuilder, ActionRowBuilder, StringSelectMenuBu
 import { LobbyService } from '../services/lobby.service.js';
 import { EconomyService } from '../services/economy.service.js';
 
-import { CRICKETER_CATEGORIES, ALL_CRICKETERS } from '../data/cricketers.js';
+import { CRICKETER_CATEGORIES, ALL_CRICKETERS, EASY_PAIRS } from '../data/cricketers.js';
 
 export class ImposterGame {
   static async startMatch(client: Client, channelId: string) {
@@ -56,21 +56,30 @@ export class ImposterGame {
       impWord = cat2[Math.floor(Math.random() * cat2.length)];
       if (Math.random() > 0.5) [innoWord, impWord] = [impWord, innoWord]; // Shuffle which is imposter
     } else {
-      // Easy: Completely random from the entire pool, almost guaranteed to be very different
-      const shuffledList = [...ALL_CRICKETERS].sort(() => 0.5 - Math.random());
-      innoWord = shuffledList[0];
-      impWord = shuffledList[1];
+      // Easy: Use predefined pairs
+      const chosenPair = EASY_PAIRS[Math.floor(Math.random() * EASY_PAIRS.length)];
+      innoWord = chosenPair.inno;
+      impWord = chosenPair.imp;
     }
 
     let alivePlayers = [...lobby.players];
     const initialInnocents = lobby.players.filter(p => p !== imposterId);
 
-    // DM Players without revealing who is the imposter
+    // DM Players
     for (const playerId of lobby.players) {
       try {
         const user = await client.users.fetch(playerId);
         const secretName = (playerId === imposterId) ? impWord : innoWord;
-        await user.send(`🕵️ **YOUR SECRET NAME IS:** \`${secretName}\` 🕵️\n*Find the imposter who has a different name than the rest of the group!*\nhttps://media.tenor.com/8Qj87u0G7hQAAAAC/mr-bean-suspicious.gif`);
+        
+        if (diff === 'easy') {
+          if (playerId === imposterId) {
+            await user.send(`🔪 **YOU ARE THE IMPOSTER!** 🔪\nYour secret name is: **${secretName}**\n*Try to blend in! Do not let them know you have a different name!*`);
+          } else {
+            await user.send(`😇 **YOU ARE INNOCENT!** 😇\nYour secret name is: **${secretName}**\n*Find the person who doesn't know this name!*`);
+          }
+        } else {
+          await user.send(`🕵️ **YOUR SECRET NAME IS:** \`${secretName}\` 🕵️\n*Find the imposter who has a different name than the rest of the group!*\nhttps://media.tenor.com/8Qj87u0G7hQAAAAC/mr-bean-suspicious.gif`);
+        }
       } catch (e) {
         await channel.send(`❌ Could not DM <@${playerId}>. Please make sure your DMs are open! Game cancelled.`);
         LobbyService.clearLobby(channelId);

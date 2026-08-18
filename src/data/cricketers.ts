@@ -79,3 +79,27 @@ export const CRICKETER_CATEGORIES = {
 };
 
 export const ALL_CRICKETERS = Object.values(CRICKETER_CATEGORIES).flat();
+
+export const EASY_PAIRS = [
+  { inno: 'MS Dhoni', imp: 'Virat Kohli' }, { inno: 'Sachin Tendulkar', imp: 'Virender Sehwag' },
+  { inno: 'Jasprit Bumrah', imp: 'Mohammed Shami' }, { inno: 'Rohit Sharma', imp: 'Hardik Pandya' },
+  { inno: 'Yuvraj Singh', imp: 'Mohammad Kaif' }, { inno: 'Sourav Ganguly', imp: 'Rahul Dravid' },
+  { inno: 'R Ashwin', imp: 'Ravindra Jadeja' }, { inno: 'KL Rahul', imp: 'Rishabh Pant' },
+  { inno: 'Shikhar Dhawan', imp: 'Gautam Gambhir' }, { inno: 'Zaheer Khan', imp: 'Ashish Nehra' },
+  { inno: 'Harbhajan Singh', imp: 'Anil Kumble' }, { inno: 'Suryakumar Yadav', imp: 'Ishan Kishan' },
+  { inno: 'Shreyas Iyer', imp: 'Shubman Gill' }, { inno: 'Mohammed Siraj', imp: 'Arshdeep Singh' },
+  { inno: 'Yuzvendra Chahal', imp: 'Kuldeep Yadav' }, { inno: 'Ajinkya Rahane', imp: 'Cheteshwar Pujara' },
+  { inno: 'Kapil Dev', imp: 'Sunil Gavaskar' }, { inno: 'Sanju Samson', imp: 'Dinesh Karthik' },
+  { inno: 'Steve Smith', imp: 'David Warner' }, { inno: 'Brett Lee', imp: 'Glenn McGrath' },
+  { inno: 'Shane Warne', imp: 'Muttiah Muralitharan' }, { inno: 'AB de Villiers', imp: 'Faf du Plessis' },
+  { inno: 'Jacques Kallis', imp: 'Graeme Smith' }, { inno: 'Dale Steyn', imp: 'Morne Morkel' },
+  { inno: 'Kane Williamson', imp: 'Ross Taylor' }, { inno: 'Trent Boult', imp: 'Tim Southee' },
+  { inno: 'Joe Root', imp: 'Alastair Cook' }, { inno: 'Ben Stokes', imp: 'Jos Buttler' },
+  { inno: 'James Anderson', imp: 'Stuart Broad' }, { inno: 'Jofra Archer', imp: 'Mark Wood' },
+  { inno: 'Chris Gayle', imp: 'Kieron Pollard' }, { inno: 'Brian Lara', imp: 'Viv Richards' },
+  { inno: 'Rashid Khan', imp: 'Mohammad Nabi' }, { inno: 'Babar Azam', imp: 'Mohammad Rizwan' },
+  { inno: 'Shaheen Afridi', imp: 'Haris Rauf' }, { inno: 'Wasim Akram', imp: 'Waqar Younis' },
+  { inno: 'Kumar Sangakkara', imp: 'Mahela Jayawardene' }, { inno: 'Sanath Jayasuriya', imp: 'Tillakaratne Dilshan' },
+  { inno: 'Pat Cummins', imp: 'Mitchell Starc' }, { inno: 'Glenn Maxwell', imp: 'Marcus Stoinis' },
+  { inno: 'Kagiso Rabada', imp: 'Lungi Ngidi' }, { inno: 'Quinton de Kock', imp: 'Hashim Amla' }
+];
